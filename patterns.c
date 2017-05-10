@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <sndfile.h>
 
-#include "xmt-base.h"
+#include "base.h"
 
 xm_note make_note(
 		int note,

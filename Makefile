@@ -2,16 +2,14 @@
 
 default: all
 
-OBJ = xmt-base.o xmt-samples.o xmt-patterns.o xmt-instruments.o
+OBJ = base.o samples.o patterns.o instruments.o
 
 %.o: %.c
 	$(CC) -c $< -o $@
 
-# 	gcc $(@:.o=.c) -c
-
-luaxmt.so: xmt-lua.c $(OBJ)
+luaxmt.so: lua.c $(OBJ)
 	gcc -Wall -shared -fPIC -o luaxmt.so  \
-		-llua xmt-lua.c -lsndfile $(OBJ)
+		-llua lua.c -lsndfile $(OBJ)
 all:
 	make $(OBJ) luaxmt.so
 	cp luaxmt.so xmt.lua examples

@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <sndfile.h>
 
-#include "xmt-base.h"
+#include "base.h"
 
 void init_xm_ins(xm_file *f, xm_ins *i)
 {

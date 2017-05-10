@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <sndfile.h>
 
-#include "xmt-base.h"
+#include "base.h"
 /*TODO: add error handling to file I/O */
 
 void xm_set_bpm(xm_params *p, uint8_t bpm) 

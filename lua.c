@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <sndfile.h>
 
-#include "xmt-base.h"
+#include "base.h"
 
 typedef struct {
     const char *name;
