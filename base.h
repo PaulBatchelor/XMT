@@ -1,3 +1,5 @@
+#ifndef XMT_H
+#define XMT_H
 #define AMIGA 0x0
 #define LINEAR 0x1
 #define NOTE 0b1
@@ -192,3 +194,4 @@ void xm_set_nchan(xm_params *p, uint8_t n);
 void xm_set_bpm(xm_params *p, uint8_t bpm);
 void xm_set_speed(xm_params *p, uint8_t speed);
 int create_pattern(xm_file *f, uint16_t size);
+#endif
