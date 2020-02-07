@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sndfile.h>
 
 #include "base.h"
 

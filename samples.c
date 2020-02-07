@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sndfile.h>
 
 #include "base.h"
 
@@ -77,30 +76,30 @@ int8_t write_delta_data(double *buffer, FILE *out, int count, int8_t prev)
 
 void init_xm_sample(xm_sample *s, xm_samp_params *param)
 {
-	SF_INFO info;
-    s->samptype = param->samptype;
-    if(s->samptype == 1) {
-        int i;
-        s->length = param->samplen;
-        s->sampbuf = (double *)malloc(sizeof(double) * s->length);
-        memset(s->sampbuf, 0, sizeof(double) * s->length);
-        for(i = 0; i < s->length; i++)
-            s->sampbuf[i] = param->buf[i];
-    }else if(s->samptype == 0){
-	    s->sfile = sf_open(param->filename, SFM_READ, &info);
-        s->length = info.frames;
-    }
-	s->loop_start = 0;
-	s->loop_length= s->length;
-	s->volume = param->volume;
-	s->finetune= param->finetune;
-	s->type = param->type;
-	s->panning = param->panning;
-	s->nn = param->nn;
-	s->reserved = 0;
-    s->nchnls = info.channels;
-	memset(s->sample_name, 0, sizeof(char) * 22);
-    if(s->samptype == 1) free(param->buf);
+	/* SF_INFO info; */
+    /* s->samptype = param->samptype; */
+    /* if(s->samptype == 1) { */
+    /*     int i; */
+    /*     s->length = param->samplen; */
+    /*     s->sampbuf = (double *)malloc(sizeof(double) * s->length); */
+    /*     memset(s->sampbuf, 0, sizeof(double) * s->length); */
+    /*     for(i = 0; i < s->length; i++) */
+    /*         s->sampbuf[i] = param->buf[i]; */
+    /* }else if(s->samptype == 0){ */
+	/*     s->sfile = sf_open(param->filename, SFM_READ, &info); */
+    /*     s->length = info.frames; */
+    /* } */
+	/* s->loop_start = 0; */
+	/* s->loop_length= s->length; */
+	/* s->volume = param->volume; */
+	/* s->finetune= param->finetune; */
+	/* s->type = param->type; */
+	/* s->panning = param->panning; */
+	/* s->nn = param->nn; */
+	/* s->reserved = 0; */
+    /* s->nchnls = info.channels; */
+	/* memset(s->sample_name, 0, sizeof(char) * 22); */
+    /* if(s->samptype == 1) free(param->buf); */
 }
 
 int add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
@@ -119,38 +118,38 @@ int add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
 
 void write_sample_data(xm_file *f, int insnum)
 {
-        int sampnum = f->ins[insnum].num_samples;
-        int i;
-        for(i = 0; i < sampnum; i++)
-        {
-            xm_sample *s = &f->ins[insnum].sample[i];
-            fwrite(&s->length, sizeof(uint32_t), 1, f->file);
-            fwrite(&s->loop_start, sizeof(uint32_t), 1, f->file);
-            fwrite(&s->loop_length, sizeof(uint32_t), 1, f->file);
-            fwrite(&s->volume, sizeof(uint8_t), 1, f->file);
-            fwrite(&s->finetune, sizeof(int8_t), 1, f->file);
-            fwrite(&s->type, sizeof(uint8_t), 1, f->file);
-            fwrite(&s->panning, sizeof(uint8_t), 1, f->file);
-            fwrite(&s->nn, sizeof(int8_t), 1, f->file);
-            fwrite(&s->reserved, sizeof(int8_t), 1, f->file);
-            fwrite(&s->sample_name, sizeof(char), 22, f->file);
-       }
-        for(i = 0; i < sampnum; i++)
-        {
-            xm_sample *s = &f->ins[insnum].sample[i];
-            double buffer[BSIZE];
-            int count = -1;
-            int8_t prev = 0;
+       /*  int sampnum = f->ins[insnum].num_samples; */
+       /*  int i; */
+       /*  for(i = 0; i < sampnum; i++) */
+       /*  { */
+       /*      xm_sample *s = &f->ins[insnum].sample[i]; */
+       /*      fwrite(&s->length, sizeof(uint32_t), 1, f->file); */
+       /*      fwrite(&s->loop_start, sizeof(uint32_t), 1, f->file); */
+       /*      fwrite(&s->loop_length, sizeof(uint32_t), 1, f->file); */
+       /*      fwrite(&s->volume, sizeof(uint8_t), 1, f->file); */
+       /*      fwrite(&s->finetune, sizeof(int8_t), 1, f->file); */
+       /*      fwrite(&s->type, sizeof(uint8_t), 1, f->file); */
+       /*      fwrite(&s->panning, sizeof(uint8_t), 1, f->file); */
+       /*      fwrite(&s->nn, sizeof(int8_t), 1, f->file); */
+       /*      fwrite(&s->reserved, sizeof(int8_t), 1, f->file); */
+       /*      fwrite(&s->sample_name, sizeof(char), 22, f->file); */
+       /* } */
+       /*  for(i = 0; i < sampnum; i++) */
+       /*  { */
+       /*      xm_sample *s = &f->ins[insnum].sample[i]; */
+       /*      double buffer[BSIZE]; */
+       /*      int count = -1; */
+       /*      int8_t prev = 0; */
 
-            if(s->samptype == 0 ){
-                while(count != 0)
-                {
-                    count = sf_read_double(s->sfile, buffer, BSIZE);
-                    prev = write_delta_data(buffer,f->file, count, prev);
-                }
-                sf_close(s->sfile);
-            }else if(s->samptype == 1){
-                write_delta_data(s->sampbuf, f->file, s->length, prev);
-            }
-        }
+       /*      if(s->samptype == 0 ){ */
+       /*          while(count != 0) */
+       /*          { */
+       /*              count = sf_read_double(s->sfile, buffer, BSIZE); */
+       /*              prev = write_delta_data(buffer,f->file, count, prev); */
+       /*          } */
+       /*          sf_close(s->sfile); */
+       /*      }else if(s->samptype == 1){ */
+       /*          write_delta_data(s->sampbuf, f->file, s->length, prev); */
+       /*      } */
+       /*  } */
 }

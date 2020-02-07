@@ -93,7 +93,7 @@ typedef struct {
     int8_t reserved;
     char sample_name[22];
     const char *filename;
-    SNDFILE *sfile;
+    /* SNDFILE *sfile; */
     int nchnls;
     double *sampbuf;
     int samptype;

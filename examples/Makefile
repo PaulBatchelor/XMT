@@ -1,6 +1,5 @@
 ex1: ex1.c
-	cd ../; make
-	$(CC) -I../ $< -o $@ -L../ -lxmt -lsndfile
+	$(CC) -I../ $< -o $@ -L../ -lxmt
 
 clean:
 	$(RM) ex1
