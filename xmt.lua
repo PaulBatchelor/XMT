@@ -7,7 +7,7 @@ XMT.FORWARD = 1
 XMT.PING_PONG = 2
 XMT.BIT_16 = 4
 function makenote(nn, ins, vol, fx, param)
-    return {nn = nn or -1, ins = ins or -1, vol = vol or -1, 
+    return {nn = nn or -1, ins = ins or -1, vol = vol or -1,
     fx = fx or -1, param = param or -1}
 end
 
@@ -24,7 +24,7 @@ function XMT:create(args)
     setmetatable(o, self)
     self.__index = self
     p = xm_init_xm_params()
-    
+
     if(args) then
     for param, val in pairs(args) do
         XMT.PARAMS[param](p, val)
@@ -40,7 +40,7 @@ function XMT:addins()
 end
 
 function XMT:addnote(patnum, chan, row, note)
-    xm_addnote(self.xm, patnum, chan, row, 
+    xm_addnote(self.xm, patnum, chan, row,
     xm_makenote(note.nn, note.ins, note.vol, note.fx, note.param))
 end
 
@@ -76,6 +76,6 @@ function XMT:set_pat_len(pnum, len)
 end
 
 function XMT:addpat(size)
-    size = size or 0x40 
+    size = size or 0x40
     return xm_create_pattern(self.xm, size) - 1
 end

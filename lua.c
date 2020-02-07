@@ -1,6 +1,6 @@
-#include <lua.h>                               
-#include <lauxlib.h>                           
-#include <lualib.h>                            
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include <stdint.h>
 #include <sndfile.h>
 
@@ -12,7 +12,7 @@ typedef struct {
 }LEntry;
 
 void make_note_wrapper(
-xm_note *n, 
+xm_note *n,
 int note,
 int ins,
 int vol,
@@ -50,7 +50,7 @@ static int L_new(lua_State *L)
     xm_params *p = (xm_params *)lua_touserdata(L, 1);
     //xm_params p;
     //init_xm_params(&p);
-    init_xm_file(file, p); 
+    init_xm_file(file, p);
     return 1;
 }
 
@@ -66,7 +66,7 @@ static int L_write(lua_State *L)
 }
 
 static int L_makenote(lua_State *L)
-{   
+{
     int note = lua_tointeger(L, 1);
     int ins = lua_tointeger(L, 2);
     int vol = lua_tointeger(L, 3);

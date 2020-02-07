@@ -35,7 +35,6 @@ void init_xm_params(xm_params *p)
 	sprintf(p->module_name, "Test Module");
 	memset(p->tracker_name, 0x20, sizeof(char) * 20);
 	sprintf(p->tracker_name, "Milkytracker");
-	//sprintf(p->tracker_name, "FastTracker v2.00  ");
 	p->var = 0x1a;
 	p->version = 0x0104;
 	p->header_size = 0x114;
@@ -50,8 +49,9 @@ void init_xm_params(xm_params *p)
 }
 
 void init_xm_file(xm_file *f, xm_params *p){
+    int i;
 	memset(f->id_text, 0x20, sizeof(char) * 17);
-	sprintf(f->id_text, "Extended Module: ");
+	sprintf(f->id_text, "%s", "Extended Module:");
 	memset(f->module_name, 0x0, sizeof(char) * 20);
 	sprintf(f->module_name, "Test Module");
 	memset(f->tracker_name, ' ', sizeof(char) * 20);
@@ -67,14 +67,12 @@ void init_xm_file(xm_file *f, xm_params *p){
 	f->freq_table = p->freq_table;
 	f->speed = p->speed;
 	f->bpm = p->bpm;
-	//initialize pattern table
+
 	memset(f->ptable, 0x0, sizeof(uint8_t) * 256);
-    int i;
-    for(i = 0; i < 256; i++)
-    {
+
+    for (i = 0; i < 256; i++) {
 	    init_xm_pat(f, i, 0x40);
     }
-    //init_xm_pat(f);
 
 }
 
