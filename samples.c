@@ -22,6 +22,7 @@ xm_samp_params new_samp(const char *filename)
 xm_samp_params new_buf(double *buf, int size)
 {
 	xm_samp_params s;
+    int i;
 	s.volume = 0x40;
 	s.finetune = 0;
 	s.type = FORWARD_LOOP;
@@ -30,14 +31,13 @@ xm_samp_params new_buf(double *buf, int size)
     s.samptype = 1;
     s.samplen = size;
     s.buf = (double *) malloc(size * sizeof(double));
-    int i;
     for(i = 0; i < size; i++){
         s.buf[i] = buf[i];
     }
 	return s;
 }
 
-void xm_transpose_sample(xm_file *f, uint8_t ins, uint8_t sample, 
+void xm_transpose_sample(xm_file *f, uint8_t ins, uint8_t sample,
         int8_t nn, uint8_t fine)
 {
     f->ins[ins].sample[sample].nn = nn;
@@ -53,11 +53,16 @@ int8_t scale_8(double s){
 	return (uint8_t)(s * 0x7f);
 }
 
+
+/* TODO: don't use malloc */
+
 int8_t write_delta_data(double *buffer, FILE *out, int count, int8_t prev)
 {
-	int8_t delta_buffer[count];
+	int8_t *delta_buffer;
 	int8_t tmp;
 	int i;
+
+    delta_buffer = calloc(1, sizeof(int8_t) * count);
 
 	for(i = 0; i < count; i++){
 		tmp = scale_8(buffer[i]);
@@ -66,6 +71,7 @@ int8_t write_delta_data(double *buffer, FILE *out, int count, int8_t prev)
 	}
 
 	fwrite(delta_buffer, sizeof(int8_t), count, out);
+    free(delta_buffer);
 	return prev;
 }
 
@@ -74,10 +80,10 @@ void init_xm_sample(xm_sample *s, xm_samp_params *param)
 	SF_INFO info;
     s->samptype = param->samptype;
     if(s->samptype == 1) {
+        int i;
         s->length = param->samplen;
         s->sampbuf = (double *)malloc(sizeof(double) * s->length);
         memset(s->sampbuf, 0, sizeof(double) * s->length);
-        int i;
         for(i = 0; i < s->length; i++)
             s->sampbuf[i] = param->buf[i];
     }else if(s->samptype == 0){
@@ -99,12 +105,13 @@ void init_xm_sample(xm_sample *s, xm_samp_params *param)
 
 int add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
 {
+	xm_ins *i;
 	if(ins > f->num_instruments)
 	{
 		printf("invalid instrument number..\n");
 		ins = ins % f->num_instruments;
 	}
-	xm_ins *i = &f->ins[ins];
+	i = &f->ins[ins];
 	i->num_samples++;
 	init_xm_sample(&i->sample[i->num_samples - 1], s);
 	return i->num_samples - 1;
@@ -134,7 +141,7 @@ void write_sample_data(xm_file *f, int insnum)
             double buffer[BSIZE];
             int count = -1;
             int8_t prev = 0;
-            
+
             if(s->samptype == 0 ){
                 while(count != 0)
                 {
@@ -143,7 +150,6 @@ void write_sample_data(xm_file *f, int insnum)
                 }
                 sf_close(s->sfile);
             }else if(s->samptype == 1){
-                int i;
                 write_delta_data(s->sampbuf, f->file, s->length, prev);
             }
         }

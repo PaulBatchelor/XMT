@@ -55,13 +55,12 @@ void write_note(FILE *f, xm_note *n)
 		fwrite(&n->fx_param, sizeof(uint8_t), 1, f);
 }
 
-void add_note(	xm_file *f, 
+void add_note(	xm_file *f,
 				uint8_t patnum,
 				uint8_t chan,
 				uint8_t row,
 				xm_note note)
-{	
-	//if((patnum + 1)> f->num_patterns) f->num_patterns = (patnum + 1);
+{
 	xm_pat *p = &f->pat[patnum];
     /*remove previous note */
     remove_note(f, patnum, chan, row);
@@ -72,10 +71,9 @@ void add_note(	xm_file *f,
 	if(note.pscheme & PARAM) p->data_size++;
 	p->data[(row * p->num_channels) + chan ] = note;
 }
+
 void remove_note(xm_file *f, uint8_t patnum, uint8_t chan, uint8_t row)
-{	
-	//if((patnum + 1)> f->num_patterns) f->num_patterns = (patnum + 1);
-	//if((patnum + 1)> f->num_patterns) f->num_patterns = (patnum + 1);
+{
 	xm_pat *p = &f->pat[patnum];
     xm_note *note = &p->data[(row * p->num_channels) + chan ];
 	if(note->pscheme & NOTE) p->data_size--;
@@ -85,37 +83,17 @@ void remove_note(xm_file *f, uint8_t patnum, uint8_t chan, uint8_t row)
 	if(note->pscheme & PARAM) p->data_size--;
 }
 
-
-//void init_xm_pat(xm_file *f)
-//{
-//    int i, j;
-//    for(j = 0; j < 256; j++)
-//    {
-//        xm_pat *p = &f->pat[j];
-//        p->header_size = 0x09; 
-//        p->packing_type = 0x00;
-//        p->num_rows = 0x40;
-//        p->num_channels = f->num_channels;
-//        p->data_size = p->num_rows * f->num_channels;
-//        p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size);
-//        for(i = 0; i < p->data_size; i++) 
-//        {
-//            p->data[i].pscheme = 0x80;
-//        }
-//    }
-//}
-
 void init_xm_pat(xm_file *f, uint8_t patnum, uint16_t size)
 {
 	int i;
     xm_pat *p = &f->pat[patnum];
-    p->header_size = 0x09; 
+    p->header_size = 0x09;
     p->packing_type = 0x00;
     p->num_rows = size;
     p->num_channels = f->num_channels;
     p->data_size = p->num_rows * f->num_channels;
     p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size);
-    for(i = 0; i < p->data_size; i++) 
+    for(i = 0; i < p->data_size; i++)
     {
         p->data[i].pscheme = 0x80;
     }
@@ -123,7 +101,7 @@ void init_xm_pat(xm_file *f, uint8_t patnum, uint16_t size)
 
 void update_ptable(xm_file *f, uint8_t pos, uint8_t pnum){
 	if((pos + 1) > f->song_length) f->song_length = pos + 1;
-	f->ptable[pos] = pnum;	
+	f->ptable[pos] = pnum;
 }
 int add_pattern(xm_file *f){
 	return f->num_patterns++;
@@ -131,13 +109,14 @@ int add_pattern(xm_file *f){
 int create_pattern(xm_file *f, uint16_t size)
 {
     int i;
+    xm_pat *p;
     f->num_patterns++;
-    xm_pat *p = &f->pat[f->num_patterns - 1];
+    p = &f->pat[f->num_patterns - 1];
     free(p->data);
     p->num_rows = size;
     p->data_size = p->num_rows * f->num_channels;
     p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size);
-    for(i = 0; i < p->data_size; i++) 
+    for(i = 0; i < p->data_size; i++)
     {
         p->data[i].pscheme = 0x80;
     }

@@ -5,22 +5,25 @@
 #include <sndfile.h>
 
 #include "base.h"
-/*TODO: add error handling to file I/O */
 
-void xm_set_bpm(xm_params *p, uint8_t bpm) 
+void init_xm_pat(xm_file *f, uint8_t patnum, uint16_t size);
+void write_note(FILE *f, xm_note *n);
+void write_sample_data(xm_file *f, int insnum);
+
+void xm_set_bpm(xm_params *p, uint8_t bpm)
 {
 	p->bpm =  bpm;
 }
 void xm_set_nchan(xm_params *p, uint8_t n)
 {
-	if(n % 2 == 0)	
+	if(n % 2 == 0)
 	p->num_channels = n;
 	else
 	p->num_channels = n + 1;
-	
+
 }
-void xm_set_speed(xm_params *p, uint8_t speed) 
-{	
+void xm_set_speed(xm_params *p, uint8_t speed)
+{
 	p->speed = speed;
 }
 
@@ -52,7 +55,7 @@ void init_xm_file(xm_file *f, xm_params *p){
 	memset(f->module_name, 0x0, sizeof(char) * 20);
 	sprintf(f->module_name, "Test Module");
 	memset(f->tracker_name, ' ', sizeof(char) * 20);
-	sprintf(f->tracker_name, p->tracker_name);
+	sprintf(f->tracker_name, "%s", p->tracker_name);
 	f->var = p->var;
 	f->version = p->version;
 	f->header_size = p->header_size;
@@ -78,7 +81,7 @@ void init_xm_file(xm_file *f, xm_params *p){
 void write_pattern_data(xm_file *f)
 {
 	int i, p;
-	
+
 	for(p = 0; p < f->num_patterns; p++)
 	{
 		fwrite(&f->pat[p].header_size, sizeof(uint32_t), 1, f->file);
@@ -95,7 +98,7 @@ void write_pattern_data(xm_file *f)
 void write_instrument_data(xm_file *f)
 {
 	int i;
-	for(i = 0; i < f->num_instruments; i++) 
+	for(i = 0; i < f->num_instruments; i++)
 	{
 		fwrite(&f->ins[i].size, sizeof(uint32_t), 1, f->file);
 		fwrite(f->ins[i].name, sizeof(char), 22, f->file);
@@ -151,7 +154,7 @@ void write_xm_file(xm_file *f, const char *filename)
     if(f->num_instruments == 0x99){
         add_instrument(f);
     }
-    if(f->num_patterns == 0) 
+    if(f->num_patterns == 0)
     {
         create_pattern(f, 0x40);
     }
@@ -165,7 +168,7 @@ void write_xm_file(xm_file *f, const char *filename)
 /*
 int main()
 {
-	xm_params p; 
+	xm_params p;
 	xm_file file;
 	init_xm_params(&p);
 	set_nchan(&p, 8);
@@ -177,7 +180,7 @@ int main()
 	int note[] = {72, 74, 79, 83};
 	int i;
 
-	for(i = 0; i < 4; i++) 
+	for(i = 0; i < 4; i++)
 	{
 		add_note(&file, 0, i, i * 4, make_note(note[i], 1, 0, 0, 0));
 		add_note(&file, 0, i, 32, make_note(NOTEOFF, 0, 0, 0, 0));
