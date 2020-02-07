@@ -92,7 +92,7 @@ void init_xm_pat(xm_file *f, uint8_t patnum, uint16_t size)
     p->num_rows = size;
     p->num_channels = f->num_channels;
     p->data_size = p->num_rows * f->num_channels;
-    p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size);
+    /* p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size); */
     for(i = 0; i < p->data_size; i++)
     {
         p->data[i].pscheme = 0x80;
@@ -112,10 +112,10 @@ int create_pattern(xm_file *f, uint16_t size)
     xm_pat *p;
     f->num_patterns++;
     p = &f->pat[f->num_patterns - 1];
-    free(p->data);
+    /* free(p->data); */
     p->num_rows = size;
     p->data_size = p->num_rows * f->num_channels;
-    p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size);
+    /* p->data = (xm_note *)malloc(sizeof(xm_note) * p->data_size); */
     for(i = 0; i < p->data_size; i++)
     {
         p->data[i].pscheme = 0x80;

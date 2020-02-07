@@ -73,7 +73,8 @@ typedef struct {
     uint16_t num_rows;
     uint16_t num_channels;
     uint16_t data_size;
-    xm_note *data;
+    #define MAX_PATSIZE 0x100
+    xm_note data[MAX_PATSIZE];
 } xm_pat;
 
 typedef struct {
