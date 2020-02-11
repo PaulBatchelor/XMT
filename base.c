@@ -29,7 +29,8 @@ void xm_set_speed(xm_params *p, uint8_t speed)
 void init_xm_params(xm_params *p)
 {
 	memset(p->id_text, 0x20, sizeof(char) * 17);
-	sprintf(p->id_text, "Extended Module:");
+	strcpy(p->id_text, "Extended Module:");
+    p->id_text[16] = ' ';
 	memset(p->module_name, 0x20, sizeof(char) * 20);
 	sprintf(p->module_name, "Test Module");
 	memset(p->tracker_name, 0x20, sizeof(char) * 20);
@@ -50,7 +51,8 @@ void init_xm_params(xm_params *p)
 void init_xm_file(xm_file *f, xm_params *p){
     int i;
 	memset(f->id_text, 0x20, sizeof(char) * 17);
-	sprintf(f->id_text, "%s", "Extended Module:");
+    /* only copy 16 characters over. last char is space */
+    strncpy(f->id_text, "Extended Module:", 16);
 	memset(f->module_name, 0x0, sizeof(char) * 20);
 	sprintf(f->module_name, "Test Module");
 	memset(f->tracker_name, ' ', sizeof(char) * 20);
@@ -130,6 +132,7 @@ void write_instrument_data(xm_file *f)
 
 void write_header_data(xm_file *f){
 	fwrite(f->id_text, sizeof(char), sizeof(f->id_text), f->file);
+
 	fwrite(f->module_name, sizeof(char), sizeof(f->module_name), f->file);
 	fwrite(&f->var, sizeof(char), 1, f->file);
 	fwrite(f->tracker_name, sizeof(char), sizeof(f->tracker_name), f->file);
