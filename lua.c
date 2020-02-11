@@ -106,6 +106,7 @@ static int L_addsample(lua_State *L)
     lua_pushinteger(L, s);
     return 1;
 }
+
 static int L_addbuffer(lua_State *L)
 {
     xm_file *f = (xm_file *)lua_touserdata(L, 1);
