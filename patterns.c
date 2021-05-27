@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "base.h"
+#include "xmt.h"
 
 xm_note xm_make_note(int note,
                      int ins,

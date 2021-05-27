@@ -3,7 +3,7 @@
 #include <sndfile.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../base.h"
+#include "xmt.h"
 
 static void mksine(float *buf, float freq, int sz, int sr)
 {

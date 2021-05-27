@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "base.h"
+#include "xmt.h"
 
 void xm_ins_init(xm_file *f, xm_ins *i)
 {

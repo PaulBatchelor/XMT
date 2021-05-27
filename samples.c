@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "base.h"
+#include "xmt.h"
 
 xm_samp_params xm_new_samp(const char *filename)
 {

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "base.h"
+#include "xmt.h"
 
 void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size);
 void write_note(FILE *f, xm_note *n);
