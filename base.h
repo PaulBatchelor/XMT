@@ -75,13 +75,12 @@ typedef struct {
     uint16_t num_rows;
     uint16_t num_channels;
     uint16_t data_size;
-    #define MAX_PATSIZE 0x100
-    xm_note data[MAX_PATSIZE];
+    xm_note data[0x100];
 } xm_pat;
 
 typedef struct {
     uint16_t x, y;
-} point;
+} xm_point;
 
 typedef struct {
     uint32_t length;
@@ -95,7 +94,6 @@ typedef struct {
     int8_t reserved;
     char sample_name[22];
     const char *filename;
-    /* SNDFILE *sfile; */
     int nchnls;
     XMFLT *sampbuf;
     int samptype;
@@ -110,8 +108,8 @@ typedef struct {
     /*if num_samples > 0, these become important */
     uint32_t sample_header_size;
     uint8_t sample_map[96];
-    point volume_points[12];
-    point envelope_points[12];
+    xm_point volume_points[12];
+    xm_point envelope_points[12];
 
     uint8_t num_volume_points;
     uint8_t num_envelope_points;
@@ -156,29 +154,29 @@ typedef struct {
     xm_ins ins[256];
 } xm_file;
 
-void init_xm_params(xm_params *p);
-void set_nchan(xm_params *p, uint8_t n);
-void init_xm_file(xm_file *f, xm_params *p);
-int add_samp(xm_file *f, xm_samp_params *s, uint8_t ins);
-xm_samp_params new_samp(const char *filename);
-xm_samp_params new_buf(XMFLT *buf, int size);
-int add_instrument(xm_file *f);
-void write_xm_file(xm_file *f, const char *filename);
-xm_note make_note(
+void xm_params_init(xm_params *p);
+void xm_set_nchan(xm_params *p, uint8_t n);
+void xm_file_init(xm_file *f, xm_params *p);
+int xm_add_samp(xm_file *f, xm_samp_params *s, uint8_t ins);
+xm_samp_params xm_new_samp(const char *filename);
+xm_samp_params xm_new_buf(XMFLT *buf, int size);
+int xm_add_instrument(xm_file *f);
+void xm_file_write(xm_file *f, const char *filename);
+xm_note xm_make_note(
 		int note,
 		int ins,
 		int vol,
 		int fx,
 		int param);
-void add_note(xm_file *f, uint8_t patnum, uint8_t chan,
+void xm_add_note(xm_file *f, uint8_t patnum, uint8_t chan,
         uint8_t row, xm_note note);
-void remove_note(xm_file *f, uint8_t patnum, uint8_t chan, uint8_t row);
+void xm_remove_note(xm_file *f, uint8_t patnum, uint8_t chan, uint8_t row);
 
 void xm_transpose_sample(xm_file *f, uint8_t ins, uint8_t sample, int8_t nn, uint8_t fine);
-void update_ptable(xm_file *f, uint8_t pos, uint8_t pnum);
+void xm_update_ptable(xm_file *f, uint8_t pos, uint8_t pnum);
 void xm_set_loop_mode(xm_file *f, uint8_t ins, uint8_t sample, uint8_t mode);
 void xm_set_nchan(xm_params *p, uint8_t n);
 void xm_set_bpm(xm_params *p, uint8_t bpm);
 void xm_set_speed(xm_params *p, uint8_t speed);
-int create_pattern(xm_file *f, uint16_t size);
+int xm_create_pattern(xm_file *f, uint16_t size);
 #endif

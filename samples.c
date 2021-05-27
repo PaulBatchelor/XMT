@@ -5,7 +5,7 @@
 
 #include "base.h"
 
-xm_samp_params new_samp(const char *filename)
+xm_samp_params xm_new_samp(const char *filename)
 {
 	xm_samp_params s;
 	s.volume = 0x40;
@@ -18,7 +18,7 @@ xm_samp_params new_samp(const char *filename)
 	return s;
 }
 
-xm_samp_params new_buf(XMFLT *buf, int size)
+xm_samp_params xm_new_buf(XMFLT *buf, int size)
 {
 	xm_samp_params s;
     /* int i; */
@@ -29,10 +29,6 @@ xm_samp_params new_buf(XMFLT *buf, int size)
 	s.nn = 12 * 2 + 5; /* F6 seems to be normal playback */
     s.samptype = 1;
     s.samplen = size;
-    /* s.buf = (XMFLT *) malloc(size * sizeof(XMFLT)); */
-    /* for (i = 0; i < size; i++){ */
-    /*     s.buf[i] = buf[i]; */
-    /* } */
     s.buf = buf;
 	return s;
 }
@@ -107,7 +103,7 @@ void init_xm_sample(xm_sample *s, xm_samp_params *param)
     /* if(s->samptype == 1) free(param->buf); */
 }
 
-int add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
+int xm_add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
 {
 	xm_ins *i;
 	if(ins > f->num_instruments)

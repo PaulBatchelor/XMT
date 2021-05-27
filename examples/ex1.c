@@ -31,22 +31,21 @@ int main(int argc, char *argv[])
     float *buf;
     xm_samp_params sparams;
 
-
     buf = calloc(1, 44100 * sizeof(float));
     mksine(buf, 440, 44100, 44100);
-    init_xm_params(&p);
-    init_xm_file(&file, &p);
-    create_pattern(&file, 0x40);
-    update_ptable(&file, 0, 0);
-    ins = add_instrument(&file);
-    note = make_note(60, ins, 0x00, 0, 0);
+    xm_params_init(&p);
+    xm_file_init(&file, &p);
+    xm_create_pattern(&file, 0x40);
+    xm_update_ptable(&file, 0, 0);
+    ins = xm_add_instrument(&file);
+    note = xm_make_note(60, ins, 0x00, 0, 0);
 
-    sparams = new_buf(buf, 44100);
-    add_samp(&file, &sparams, ins);
+    sparams = xm_new_buf(buf, 44100);
+    xm_add_samp(&file, &sparams, ins);
 
-    add_note(&file, 0, 0, 0, note);
+    xm_add_note(&file, 0, 0, 0, note);
 
-    write_xm_file(&file, "out.xm");
+    xm_file_write(&file, "out.xm");
 
     free(buf);
     return 0;
