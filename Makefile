@@ -14,3 +14,4 @@ libxmt.a: $(OBJ)
 
 clean:
 	$(RM) $(OBJ)
+	$(RM) libxmt.a
