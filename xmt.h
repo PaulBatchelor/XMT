@@ -133,7 +133,7 @@ typedef struct {
 } xm_ins;
 
 typedef struct {
-    FILE *file;
+    /* FILE *file; */
     char id_text[17];
     char tracker_name[20];
     char module_name[20];
@@ -153,6 +153,11 @@ typedef struct {
     xm_pat pat[256];
     xm_ins ins[256];
 } xm_file;
+
+typedef struct {
+    FILE *file;
+    xm_file *xm;
+} xm_writer;
 
 void xm_params_init(xm_params *p);
 void xm_set_nchan(xm_params *p, uint8_t n);
