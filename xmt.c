@@ -5,12 +5,18 @@
 
 #include "xmt.h"
 
+static void fwrite_shim(void *ptr, size_t sz, size_t nmemb, xm_file* f)
+{
+    fwrite(ptr, sz, nmemb, f->file);
+}
+
 /* base */
 
 void xm_set_bpm(xm_params *p, uint8_t bpm)
 {
     p->bpm =  bpm;
 }
+
 void xm_set_nchan(xm_params *p, uint8_t n)
 {
     if(n % 2 == 0)
@@ -19,6 +25,7 @@ void xm_set_nchan(xm_params *p, uint8_t n)
     p->num_channels = n + 1;
 
 }
+
 void xm_set_speed(xm_params *p, uint8_t speed)
 {
     p->speed = speed;
@@ -75,19 +82,19 @@ void xm_file_init(xm_file *f, xm_params *p){
 
 }
 
-static void write_note(FILE *f, xm_note *n)
+static void write_note(xm_file *f, xm_note *n)
 {
-    fwrite(&n->pscheme, sizeof(uint8_t), 1, f);
+    fwrite_shim(&n->pscheme, sizeof(uint8_t), 1, f);
     if (n->pscheme & NOTE)
-        fwrite(&n->note, sizeof(uint8_t), 1, f);
+        fwrite_shim(&n->note, sizeof(uint8_t), 1, f);
     if (n->pscheme & INSTRUMENT)
-        fwrite(&n->instrument, sizeof(uint8_t), 1, f);
+        fwrite_shim(&n->instrument, sizeof(uint8_t), 1, f);
     if (n->pscheme & VOLUME)
-        fwrite(&n->volume, sizeof(uint8_t), 1, f);
+        fwrite_shim(&n->volume, sizeof(uint8_t), 1, f);
     if (n->pscheme & FX)
-        fwrite(&n->fx, sizeof(uint8_t), 1, f);
+        fwrite_shim(&n->fx, sizeof(uint8_t), 1, f);
     if (n->pscheme & PARAM)
-        fwrite(&n->fx_param, sizeof(uint8_t), 1, f);
+        fwrite_shim(&n->fx_param, sizeof(uint8_t), 1, f);
 }
 
 
@@ -97,12 +104,12 @@ static void write_pattern_data(xm_file *f)
 
     for(p = 0; p < f->num_patterns; p++)
     {
-        fwrite(&f->pat[p].header_size, sizeof(uint32_t), 1, f->file);
-        fwrite(&f->pat[p].packing_type, sizeof(uint8_t), 1, f->file);
-        fwrite(&f->pat[p].num_rows, sizeof(uint16_t), 1, f->file);
-        fwrite(&f->pat[p].data_size, sizeof(uint16_t), 1, f->file);
+        fwrite_shim(&f->pat[p].header_size, sizeof(uint32_t), 1, f);
+        fwrite_shim(&f->pat[p].packing_type, sizeof(uint8_t), 1, f);
+        fwrite_shim(&f->pat[p].num_rows, sizeof(uint16_t), 1, f);
+        fwrite_shim(&f->pat[p].data_size, sizeof(uint16_t), 1, f);
         for(i = 0; i < f->pat[p].num_rows * f->num_channels; i++){
-            write_note(f->file, &f->pat[p].data[i]);
+            write_note(f, &f->pat[p].data[i]);
         }
     }
 }
@@ -116,7 +123,7 @@ static int8_t scale_8(XMFLT s){
 /* TODO: don't use malloc */
 
 static int8_t write_delta_data(XMFLT *buffer,
-                               FILE *out,
+                               xm_file *f,
                                int count,
                                int8_t prev)
 {
@@ -132,7 +139,7 @@ static int8_t write_delta_data(XMFLT *buffer,
 		prev = tmp;
 	}
 
-	fwrite(delta_buffer, sizeof(int8_t), count, out);
+	fwrite_shim(delta_buffer, sizeof(int8_t), count, f);
     free(delta_buffer);
 	return prev;
 }
@@ -145,16 +152,16 @@ static void write_sample_data(xm_file *f, int insnum)
 
     for (i = 0; i < sampnum; i++) {
         xm_sample *s = &f->ins[insnum].sample[i];
-        fwrite(&s->length, sizeof(uint32_t), 1, f->file);
-        fwrite(&s->loop_start, sizeof(uint32_t), 1, f->file);
-        fwrite(&s->loop_length, sizeof(uint32_t), 1, f->file);
-        fwrite(&s->volume, sizeof(uint8_t), 1, f->file);
-        fwrite(&s->finetune, sizeof(int8_t), 1, f->file);
-        fwrite(&s->type, sizeof(uint8_t), 1, f->file);
-        fwrite(&s->panning, sizeof(uint8_t), 1, f->file);
-        fwrite(&s->nn, sizeof(int8_t), 1, f->file);
-        fwrite(&s->reserved, sizeof(int8_t), 1, f->file);
-        fwrite(&s->sample_name, sizeof(char), 22, f->file);
+        fwrite_shim(&s->length, sizeof(uint32_t), 1, f);
+        fwrite_shim(&s->loop_start, sizeof(uint32_t), 1, f);
+        fwrite_shim(&s->loop_length, sizeof(uint32_t), 1, f);
+        fwrite_shim(&s->volume, sizeof(uint8_t), 1, f);
+        fwrite_shim(&s->finetune, sizeof(int8_t), 1, f);
+        fwrite_shim(&s->type, sizeof(uint8_t), 1, f);
+        fwrite_shim(&s->panning, sizeof(uint8_t), 1, f);
+        fwrite_shim(&s->nn, sizeof(int8_t), 1, f);
+        fwrite_shim(&s->reserved, sizeof(int8_t), 1, f);
+        fwrite_shim(&s->sample_name, sizeof(char), 22, f);
     }
 
     for (i = 0; i < sampnum; i++) {
@@ -172,7 +179,7 @@ static void write_sample_data(xm_file *f, int insnum)
             /* sf_close(s->sfile); */
         } else if (s->samptype == 1) {
             write_delta_data(s->sampbuf,
-                             f->file,
+                             f,
                              s->length, prev);
         }
     }
@@ -183,31 +190,31 @@ static void write_instrument_data(xm_file *f)
     int i;
     for(i = 0; i < f->num_instruments; i++)
     {
-        fwrite(&f->ins[i].size, sizeof(uint32_t), 1, f->file);
-        fwrite(f->ins[i].name, sizeof(char), 22, f->file);
-        fwrite(&f->ins[i].type, sizeof(uint8_t), 1, f->file);
-        fwrite(&f->ins[i].num_samples, sizeof(uint16_t), 1, f->file);
+        fwrite_shim(&f->ins[i].size, sizeof(uint32_t), 1, f);
+        fwrite_shim(f->ins[i].name, sizeof(char), 22, f);
+        fwrite_shim(&f->ins[i].type, sizeof(uint8_t), 1, f);
+        fwrite_shim(&f->ins[i].num_samples, sizeof(uint16_t), 1, f);
         if(f->ins[i].num_samples!= 0){
-            fwrite(&f->ins[i].sample_header_size, sizeof(uint32_t), 1, f->file);
-            fwrite(&f->ins[i].sample_map, sizeof(uint8_t), 96, f->file);
-            fwrite(&f->ins[i].volume_points, sizeof(xm_point), 12, f->file);
-            fwrite(&f->ins[i].envelope_points, sizeof(xm_point), 12, f->file);
-            fwrite(&f->ins[i].num_volume_points, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].num_envelope_points, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vol_sustain, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vol_loop_start, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vol_loop_end, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].pan_sustain, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].pan_loop_start, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].pan_loop_end, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vol_type, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].pan_type, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vib_type, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vib_sweep, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vib_depth, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vib_rate, sizeof(uint8_t), 1, f->file);
-            fwrite(&f->ins[i].vol_fadeout, sizeof(uint16_t), 1, f->file);
-            fwrite(&f->ins[i].reserved, sizeof(uint16_t), 11, f->file);
+            fwrite_shim(&f->ins[i].sample_header_size, sizeof(uint32_t), 1, f);
+            fwrite_shim(&f->ins[i].sample_map, sizeof(uint8_t), 96, f);
+            fwrite_shim(&f->ins[i].volume_points, sizeof(xm_point), 12, f);
+            fwrite_shim(&f->ins[i].envelope_points, sizeof(xm_point), 12, f);
+            fwrite_shim(&f->ins[i].num_volume_points, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].num_envelope_points, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vol_sustain, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vol_loop_start, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vol_loop_end, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].pan_sustain, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].pan_loop_start, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].pan_loop_end, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vol_type, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].pan_type, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vib_type, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vib_sweep, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vib_depth, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vib_rate, sizeof(uint8_t), 1, f);
+            fwrite_shim(&f->ins[i].vol_fadeout, sizeof(uint16_t), 1, f);
+            fwrite_shim(&f->ins[i].reserved, sizeof(uint16_t), 11, f);
 
             write_sample_data(f, i);
         }
@@ -215,22 +222,21 @@ static void write_instrument_data(xm_file *f)
 }
 
 static void write_header_data(xm_file *f){
-    fwrite(f->id_text, sizeof(char), sizeof(f->id_text), f->file);
-
-    fwrite(f->module_name, sizeof(char), sizeof(f->module_name), f->file);
-    fwrite(&f->var, sizeof(char), 1, f->file);
-    fwrite(f->tracker_name, sizeof(char), sizeof(f->tracker_name), f->file);
-    fwrite(&f->version, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->header_size, sizeof(uint32_t), 1, f->file);
-    fwrite(&f->song_length, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->restart_position, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->num_channels, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->num_patterns, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->num_instruments, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->freq_table, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->speed, sizeof(uint16_t), 1, f->file);
-    fwrite(&f->bpm, sizeof(uint16_t), 1, f->file);
-    fwrite(f->ptable, sizeof(uint8_t), 256, f->file);
+    fwrite_shim(f->id_text, sizeof(char), sizeof(f->id_text), f);
+    fwrite_shim(f->module_name, sizeof(char), sizeof(f->module_name), f);
+    fwrite_shim(&f->var, sizeof(char), 1, f);
+    fwrite_shim(f->tracker_name, sizeof(char), sizeof(f->tracker_name), f);
+    fwrite_shim(&f->version, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->header_size, sizeof(uint32_t), 1, f);
+    fwrite_shim(&f->song_length, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->restart_position, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->num_channels, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->num_patterns, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->num_instruments, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->freq_table, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->speed, sizeof(uint16_t), 1, f);
+    fwrite_shim(&f->bpm, sizeof(uint16_t), 1, f);
+    fwrite_shim(f->ptable, sizeof(uint8_t), 256, f);
 }
 
 void xm_file_write(xm_file *f, const char *filename)
