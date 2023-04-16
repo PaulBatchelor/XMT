@@ -12,6 +12,27 @@ static void write_to_file(xm_writer *w, void *ptr, size_t sz)
     fwrite(ptr, 1, sz, fp);
 }
 
+struct memory_buffer {
+    size_t pos;
+    char *buf;
+};
+
+static void write_to_memory(xm_writer *w, void *ptr, size_t sz)
+{
+    size_t i;
+    size_t pos;
+    char *src;
+    struct memory_buffer *mem;
+    mem = w->data;
+    pos = mem->pos;
+    src = ptr;
+    for (i = 0; i < sz; i++) {
+        mem->buf[pos] = src[i];
+        pos++;
+    }
+    mem->pos = pos;
+}
+
 static void get_size(xm_writer *w, void *ptr, size_t sz)
 {
     size_t *total_size;
@@ -534,4 +555,16 @@ size_t xm_calculate_size(xm_file *f)
     write_data(&xmw);
 
     return sz;
+}
+
+void xm_write_to_memory(xm_file *f, char *buf)
+{
+    struct memory_buffer mem;
+    xm_writer xmw;
+    mem.buf = buf;
+    mem.pos = 0;
+    xmw.xm = f;
+    xmw.data = &mem;
+    xmw.write = write_to_memory;
+    write_data(&xmw);
 }

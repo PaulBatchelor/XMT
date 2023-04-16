@@ -187,4 +187,5 @@ void xm_set_speed(xm_params *p, uint8_t speed);
 int xm_create_pattern(xm_file *f, uint16_t size);
 void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size);
 size_t xm_calculate_size(xm_file *f);
+void xm_write_to_memory(xm_file *f, char *buf);
 #endif

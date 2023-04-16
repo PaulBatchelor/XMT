@@ -43,12 +43,20 @@ int main(int argc, char *argv[])
     xm_add_samp(&file, &sparams, ins);
 
     xm_add_note(&file, 0, 0, 0, note);
-    xm_file_write(&file, "out.xm");
+    /* xm_file_write(&file, "out.xm"); */
 
     {
         size_t sz;
+        char *xmbuf;
+        FILE *fp;
         sz = xm_calculate_size(&file);
         printf("size is %ld\n", sz);
+        xmbuf = malloc(sz);
+        xm_write_to_memory(&file, xmbuf);
+        fp = fopen("out.xm", "wb");
+        fwrite(xmbuf, 1, sz, fp);
+        fclose(fp);
+        free(xmbuf);
     }
 
     free(buf);
