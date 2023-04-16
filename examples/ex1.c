@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <sndfile.h>
 #include <stdlib.h>
 #include <math.h>
 #include "xmt.h"
