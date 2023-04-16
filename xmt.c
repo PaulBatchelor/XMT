@@ -7,7 +7,9 @@
 
 static void writer(xm_writer *w, void *ptr, size_t sz)
 {
-    fwrite(ptr, 1, sz, w->file);
+    FILE *fp;
+    fp = w->data;
+    fwrite(ptr, 1, sz, fp);
 }
 
 /* base */
@@ -248,24 +250,22 @@ static void write_header_data(xm_writer *xmw) {
     writer(xmw, f->ptable, sizeof(uint8_t)*256);
 }
 
+static void write_data(xm_writer *xmw)
+{
+    write_header_data(xmw);
+    write_pattern_data(xmw);
+    write_instrument_data(xmw);
+}
+
 void xm_file_write(xm_file *f, const char *filename)
 {
     xm_writer xmw;
-
-    if (f->num_instruments == 0x99){
-        xm_add_instrument(f);
-    }
-
-    if (f->num_patterns == 0) {
-        xm_create_pattern(f, 0x40);
-    }
-
-    xmw.file = fopen(filename, "wb");
+    FILE *fp;
+    fp = fopen(filename, "wb");
     xmw.xm = f;
-    write_header_data(&xmw);
-    write_pattern_data(&xmw);
-    write_instrument_data(&xmw);
-    fclose(xmw.file);
+    xmw.data = fp;
+    write_data(&xmw);
+    fclose(fp);
 }
 
 /* instruments */

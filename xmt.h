@@ -155,8 +155,8 @@ typedef struct {
 } xm_file;
 
 typedef struct {
-    FILE *file;
     xm_file *xm;
+    void *data;
 } xm_writer;
 
 void xm_params_init(xm_params *p);
