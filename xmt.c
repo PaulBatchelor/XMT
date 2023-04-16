@@ -5,11 +5,23 @@
 
 #include "xmt.h"
 
-static void writer(xm_writer *w, void *ptr, size_t sz)
+static void write_to_file(xm_writer *w, void *ptr, size_t sz)
 {
     FILE *fp;
     fp = w->data;
     fwrite(ptr, 1, sz, fp);
+}
+
+static void get_size(xm_writer *w, void *ptr, size_t sz)
+{
+    size_t *total_size;
+    total_size = w->data;
+    *total_size += sz;
+}
+
+static void writer(xm_writer *w, void *ptr, size_t sz)
+{
+    w->write(w, ptr, sz);
 }
 
 /* base */
@@ -264,6 +276,7 @@ void xm_file_write(xm_file *f, const char *filename)
     fp = fopen(filename, "wb");
     xmw.xm = f;
     xmw.data = fp;
+    xmw.write = write_to_file;
     write_data(&xmw);
     fclose(fp);
 }
@@ -509,3 +522,16 @@ int xm_add_samp(xm_file *f, xm_samp_params *s, uint8_t ins)
 	return i->num_samples - 1;
 }
 
+size_t xm_calculate_size(xm_file *f)
+{
+    size_t sz;
+    xm_writer xmw;
+
+    sz = 0;
+    xmw.xm = f;
+    xmw.data = &sz;
+    xmw.write = get_size;
+    write_data(&xmw);
+
+    return sz;
+}

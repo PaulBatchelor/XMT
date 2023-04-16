@@ -154,9 +154,10 @@ typedef struct {
     xm_ins ins[256];
 } xm_file;
 
-typedef struct {
+typedef struct xm_writer {
     xm_file *xm;
     void *data;
+    void (*write)(struct xm_writer *, void *, size_t);
 } xm_writer;
 
 void xm_params_init(xm_params *p);
@@ -185,4 +186,5 @@ void xm_set_bpm(xm_params *p, uint8_t bpm);
 void xm_set_speed(xm_params *p, uint8_t speed);
 int xm_create_pattern(xm_file *f, uint16_t size);
 void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size);
+size_t xm_calculate_size(xm_file *f);
 #endif
