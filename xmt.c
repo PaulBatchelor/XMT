@@ -81,8 +81,9 @@ void xm_params_init(xm_params *p)
     p->song_length = 0x01;
     p->restart_position = 0x00;
     p->num_channels = 0x08;
-    p->num_patterns= 0x00;
-    p->num_instruments= 0x99;
+    p->num_patterns = 0x00;
+    /* initialzed num_instruments to special value */
+    p->num_instruments = 0x99;
     p->freq_table = LINEAR;
     p->speed = 6;
     p->bpm = 125;
@@ -94,7 +95,7 @@ void xm_file_init(xm_file *f, xm_params *p){
     /* only copy 16 characters over. last char is space */
     strncpy(f->id_text, "Extended Module:", 16);
     memset(f->module_name, 0x0, sizeof(char) * 20);
-    sprintf(f->module_name, "Test Module");
+    memcpy(f->module_name, p->module_name, strlen(p->module_name));
     memset(f->tracker_name, ' ', sizeof(char) * 20);
     sprintf(f->tracker_name, "%s", p->tracker_name);
     f->var = p->var;
