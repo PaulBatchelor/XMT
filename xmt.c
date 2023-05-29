@@ -427,8 +427,7 @@ void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size)
     p->num_rows = size;
     p->num_channels = f->num_channels;
     p->data_size = p->num_rows * f->num_channels;
-    for(i = 0; i < p->data_size; i++)
-    {
+    for(i = 0; i < p->data_size; i++) {
         p->data[i].pscheme = 0x80;
     }
 }

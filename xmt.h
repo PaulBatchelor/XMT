@@ -75,6 +75,7 @@ typedef struct {
     uint16_t num_rows;
     uint16_t num_channels;
     uint16_t data_size;
+    /* TODO: this shouldn't hard-coded because it can exceed these bounds */
     xm_note data[0x100];
 } xm_pat;
 
