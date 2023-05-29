@@ -56,7 +56,7 @@ typedef struct {
 	const char *filename;
     int samptype;
     int samplen;
-    XMFLT *buf;
+    int8_t *buf;
 } xm_samp_params;
 
 
@@ -96,7 +96,7 @@ typedef struct {
     char sample_name[22];
     const char *filename;
     int nchnls;
-    XMFLT *sampbuf;
+    int8_t *sampbuf;
     int samptype;
 } xm_sample;
 
@@ -166,7 +166,7 @@ void xm_set_nchan(xm_params *p, uint8_t n);
 void xm_file_init(xm_file *f, xm_params *p);
 int xm_add_samp(xm_file *f, xm_samp_params *s, uint8_t ins);
 xm_samp_params xm_new_samp(const char *filename);
-xm_samp_params xm_new_buf(XMFLT *buf, int size);
+xm_samp_params xm_new_buf(int8_t *buf, int size);
 int xm_add_instrument(xm_file *f);
 void xm_file_write(xm_file *f, const char *filename);
 xm_note xm_make_note(
@@ -189,4 +189,5 @@ int xm_create_pattern(xm_file *f, uint16_t size);
 void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size);
 size_t xm_calculate_size(xm_file *f);
 void xm_write_to_memory(xm_file *f, char *buf);
+int8_t * xm_delta_encode(XMFLT *buf, int count);
 #endif

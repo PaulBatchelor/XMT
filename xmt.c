@@ -158,6 +158,24 @@ static int8_t scale_8(XMFLT s){
 }
 
 
+int8_t * xm_delta_encode(XMFLT *buf, int count)
+{
+	int8_t *delta_buffer;
+	int8_t tmp;
+	int i;
+	int8_t prev;
+
+    prev = 0;
+    delta_buffer = calloc(1, count);
+
+	for (i = 0; i < count; i++){
+		tmp = scale_8(buf[i]);
+		delta_buffer[i] = prev - tmp;
+		prev = tmp;
+	}
+
+	return delta_buffer;
+}
 
 /* TODO: don't use malloc */
 
@@ -219,9 +237,11 @@ static void write_sample_data(xm_writer *xmw, int insnum)
             /* } */
             /* sf_close(s->sfile); */
         } else if (s->samptype == 1) {
-            write_delta_data(s->sampbuf,
-                             xmw,
-                             s->length, prev);
+            /* int8_t *dbuf; */
+            /* dbuf = xm_delta_encode(s->sampbuf, s->length); */
+            /* writer(xmw, dbuf, s->length); */
+            writer(xmw, s->sampbuf, s->length);
+            /* free(dbuf); */
         }
     }
 }
@@ -237,7 +257,7 @@ static void write_instrument_data(xm_writer *xmw)
         writer(xmw, f->ins[i].name, sizeof(char)*22);
         writer(xmw, &f->ins[i].type, sizeof(uint8_t));
         writer(xmw, &f->ins[i].num_samples, sizeof(uint16_t));
-        if(f->ins[i].num_samples!= 0){
+        if (f->ins[i].num_samples!= 0) {
             writer(xmw, &f->ins[i].sample_header_size, sizeof(uint32_t));
             writer(xmw, &f->ins[i].sample_map, sizeof(uint8_t)*96);
             writer(xmw, &f->ins[i].volume_points, sizeof(xm_point)*12);
@@ -445,14 +465,16 @@ int xm_create_pattern(xm_file *f, uint16_t size)
 {
     int i;
     xm_pat *p;
+
     f->num_patterns++;
     p = &f->pat[f->num_patterns - 1];
     p->num_rows = size;
     p->data_size = p->num_rows * f->num_channels;
-    for(i = 0; i < p->data_size; i++)
-    {
+
+    for(i = 0; i < p->data_size; i++) {
         p->data[i].pscheme = 0x80;
     }
+
     return f->num_patterns;
 }
 
@@ -471,7 +493,7 @@ xm_samp_params xm_new_samp(const char *filename)
 	return s;
 }
 
-xm_samp_params xm_new_buf(XMFLT *buf, int size)
+xm_samp_params xm_new_buf(int8_t *buf, int size)
 {
 	xm_samp_params s;
     /* int i; */
