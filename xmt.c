@@ -14,14 +14,14 @@ static void write_to_file(xm_writer *w, void *ptr, size_t sz)
 
 struct memory_buffer {
     size_t pos;
-    char *buf;
+    uint8_t *buf;
 };
 
 static void write_to_memory(xm_writer *w, void *ptr, size_t sz)
 {
     size_t i;
     size_t pos;
-    char *src;
+    uint8_t *src;
     struct memory_buffer *mem;
     mem = w->data;
     pos = mem->pos;
@@ -147,7 +147,7 @@ static void write_pattern_data(xm_writer *xmw)
         writer(xmw, &f->pat[p].packing_type, sizeof(uint8_t));
         writer(xmw, &f->pat[p].num_rows, sizeof(uint16_t));
         writer(xmw, &f->pat[p].data_size, sizeof(uint16_t));
-        for(i = 0; i < f->pat[p].num_rows * f->num_channels; i++){
+        for(i = 0; i < f->pat[p].num_rows * f->num_channels; i++) {
             write_note(xmw, &f->pat[p].data[i]);
         }
     }
@@ -227,9 +227,10 @@ static void write_sample_data(xm_writer *xmw, int insnum)
         xm_sample *s = &f->ins[insnum].sample[i];
         /* XMFLT buffer[BSIZE]; */
         /* int count = -1; */
+#if 0
         int8_t prev = 0;
-
         if (s->samptype == 0 ) {
+            printf("are we here?1\n");
             /* Disabled for now */
             /* while(count != 0) { */
             /*     count = sf_read_XMFLT(s->sfile, buffer, BSIZE); */
@@ -240,9 +241,11 @@ static void write_sample_data(xm_writer *xmw, int insnum)
             /* int8_t *dbuf; */
             /* dbuf = xm_delta_encode(s->sampbuf, s->length); */
             /* writer(xmw, dbuf, s->length); */
-            writer(xmw, s->sampbuf, s->length);
+            /* writer(xmw, s->sampbuf, s->length); */
             /* free(dbuf); */
         }
+#endif
+            writer(xmw, s->sampbuf, s->length);
     }
 }
 
@@ -253,8 +256,9 @@ static void write_instrument_data(xm_writer *xmw)
 
     f = xmw->xm;
     for(i = 0; i < f->num_instruments; i++) {
+        int c;
         writer(xmw, &f->ins[i].size, sizeof(uint32_t));
-        writer(xmw, f->ins[i].name, sizeof(char)*22);
+        writer(xmw, f->ins[i].name, 22);
         writer(xmw, &f->ins[i].type, sizeof(uint8_t));
         writer(xmw, &f->ins[i].num_samples, sizeof(uint16_t));
         if (f->ins[i].num_samples!= 0) {
@@ -278,7 +282,6 @@ static void write_instrument_data(xm_writer *xmw)
             writer(xmw, &f->ins[i].vib_rate, sizeof(uint8_t));
             writer(xmw, &f->ins[i].vol_fadeout, sizeof(uint16_t));
             writer(xmw, &f->ins[i].reserved, sizeof(uint16_t)*11);
-
             write_sample_data(xmw, i);
         }
     }
@@ -330,7 +333,7 @@ void xm_ins_init(xm_file *f, xm_ins *i)
     int k;
 
     i->size = 0x107;
-    memset(i->name, 0, sizeof(char) * 22);
+    memset(i->name, 0, 22);
     i->type = 0;
     i->num_samples = 0;
     memset(i->sample_map, 0, sizeof(uint8_t) * 96);
@@ -446,8 +449,13 @@ void xm_pat_init(xm_file *f, uint8_t patnum, uint16_t size)
     p->packing_type = 0x00;
     p->num_rows = size;
     p->num_channels = f->num_channels;
-    p->data_size = p->num_rows * f->num_channels;
+    p->data_size = p->num_rows * p->num_channels;
+#if 0
     for(i = 0; i < p->data_size; i++) {
+        p->data[i].pscheme = 0x80;
+    }
+#endif
+    for(i = 0; i < 0x100; i++) {
         p->data[i].pscheme = 0x80;
     }
 }
@@ -579,7 +587,7 @@ size_t xm_calculate_size(xm_file *f)
     return sz;
 }
 
-void xm_write_to_memory(xm_file *f, char *buf)
+void xm_write_to_memory(xm_file *f, unsigned char *buf)
 {
     struct memory_buffer mem;
     xm_writer xmw;
