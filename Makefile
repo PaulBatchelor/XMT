@@ -1,16 +1,21 @@
 .PHONY: clean
 
-default: libxmt.a
+#default: libxmt.a
+default: xmt
 
 CFLAGS = -Wall -pedantic -std=c89 -O2
 
-OBJ = xmt.o
+# OBJ = xmt.o
+OBJ = parse.o obj.o moncmp.o cmp/cmp.o
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-libxmt.a: $(OBJ)
-	$(AR) rcs $@ $(OBJ)
+# libxmt.a: $(OBJ)
+# 	$(AR) rcs $@ $(OBJ)
+
+xmt: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
 	$(RM) $(OBJ)

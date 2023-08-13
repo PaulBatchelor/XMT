@@ -1,3 +1,5 @@
+UNDER CONSTRUCTION. COME BACK LATER.
+
 # XMT
 XMT (XM Tools), is a small C library geared towards
 procedurally generating
