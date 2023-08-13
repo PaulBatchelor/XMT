@@ -1352,8 +1352,9 @@ int parser(int argc, char *argv[])
     return 0;
 }
 
+#ifdef XMT_MAIN
 int main(int argc, char *argv[])
 {
-    /* acidjazz(); */
     return parser(argc, argv);
 }
+#endif

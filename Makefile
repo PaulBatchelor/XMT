@@ -3,7 +3,7 @@
 #default: libxmt.a
 default: xmt
 
-CFLAGS = -Wall -pedantic -std=c89 -O2
+CFLAGS = -Wall -pedantic -std=c89 -O2 -DXMT_MAIN
 
 # OBJ = xmt.o
 OBJ = parse.o obj.o moncmp.o cmp/cmp.o

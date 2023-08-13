@@ -7,7 +7,7 @@ enum {
     TYPE_INT,
     TYPE_STR,
     TYPE_ARRAY,
-    TYPE_MAP,
+    TYPE_MAP
 };
 
 xmt_obj * xmt_obj_mkint(int val)
