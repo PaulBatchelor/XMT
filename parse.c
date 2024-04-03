@@ -1277,7 +1277,7 @@ xm_module * xm_module_new(void)
     return xm;
 }
 
-int parser(int argc, char *argv[])
+int xmt_main(int argc, char *argv[])
 {
     const char *ifname;
     const char *ofname;
@@ -1355,6 +1355,6 @@ int parser(int argc, char *argv[])
 #ifdef XMT_MAIN
 int main(int argc, char *argv[])
 {
-    return parser(argc, argv);
+    return xmt_main(argc, argv);
 }
 #endif
